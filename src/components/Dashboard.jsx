@@ -242,7 +242,16 @@ export default function Dashboard({ data, selected, onSelect, onToggle, onReorde
                     return (
                       <td
                         key={task.id}
-                        onClick={isDisabled ? undefined : () => onToggle(char.id, task.id)}
+                        onClick={isDisabled ? undefined : async () => {
+                          await onToggle(char.id, task.id)
+                          const nextStatus = (status + 1) % states
+                          const willComplete = nextStatus === states - 1
+                          if (trackProfit && willComplete) {
+                            const current = compl.profit_log?.[profitKey]
+                            setProfitDraft(current != null ? String(current) : '')
+                            setProfitEdit({ cid: char.id, tid: task.id })
+                          }
+                        }}
                         style={isDisabled ? { cursor: 'default', background: 'rgba(0,0,0,0.15)' } : {}}
                         title={isDisabled ? `${task.name} — disabled for ${char.name}` : `${char.name} — ${task.name}`}
                       >
