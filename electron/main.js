@@ -395,6 +395,7 @@ function fetchLatestRelease() {
 }
 
 function parseVersion(v) {
+  // Handles: "WowToDov1.6.0", "v1.6.0", "1.6.0", "1.6"
   return (v || '').replace(/^[^\d]*/, '').split('.').map(Number)
 }
 

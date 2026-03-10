@@ -68,11 +68,6 @@ export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport,
             <button className="settings-item" onClick={handleCheckUpdates} disabled={checkingUpdate}>
               {checkingUpdate ? t('checkingUpdate') : t('checkUpdateItem')}
             </button>
-            {appVersion && (
-              <div style={{ textAlign: 'center', fontSize: '10px', color: 'var(--fg3)', padding: '2px 12px 6px', opacity: 0.6 }}>
-                v{appVersion}
-              </div>
-            )}
             <div className="settings-sep" />
             <div className="settings-item settings-zoom">
               <span>{t('languageLabel')}</span>
@@ -85,6 +80,14 @@ export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport,
                 <option value="en">English</option>
               </select>
             </div>
+            {appVersion && (
+              <>
+                <div className="settings-sep" />
+                <div style={{ padding: '5px 14px 7px', fontSize: '10px', color: 'var(--fg2)' }}>
+                  {t('currentVersion')} v{appVersion}
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

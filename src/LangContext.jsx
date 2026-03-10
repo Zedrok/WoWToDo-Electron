@@ -116,6 +116,7 @@ const TR = {
     checkingUpdate: 'Buscando...',
     upToDate: '¡Ya tienes la última versión!',
     updateCheckFailed: 'No se pudo verificar actualizaciones. Revisa tu conexión.',
+    currentVersion: 'Versión Actual',
   },
 
   en: {
@@ -211,6 +212,7 @@ const TR = {
     checkingUpdate: 'Checking...',
     upToDate: 'You already have the latest version!',
     updateCheckFailed: 'Could not check for updates. Check your connection.',
+    currentVersion: 'Current Version',
 
     // TaskSidebar
     tasksTitle: 'Tasks',
