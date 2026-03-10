@@ -2,7 +2,6 @@ const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const https = require('https')
-const os = require('os')
 const { spawn } = require('child_process')
 const { v4: uuidv4 } = require('uuid')
 
@@ -463,16 +462,16 @@ async function downloadAndReplace(url) {
   })
 
   if (response === 0) {
-    const batPath = path.join(os.tmpdir(), 'wowtodo_update.bat')
-    const bat = [
-      '@echo off',
-      'timeout /t 2 /nobreak > nul',
-      `move /y "${tempPath}" "${exePath}"`,
-      `start "" "${exePath}"`,
-      'del "%~f0"'
-    ].join('\r\n')
-    fs.writeFileSync(batPath, bat, 'ascii')
-    spawn('cmd.exe', ['/c', batPath], { detached: true, stdio: 'ignore' }).unref()
+    const ps = [
+      `Start-Sleep -Milliseconds 1500`,
+      `Move-Item -Force '${tempPath.replace(/'/g, "''")}' '${exePath.replace(/'/g, "''")}'`,
+      `Start-Process '${exePath.replace(/'/g, "''")}'`
+    ].join('; ')
+    spawn('powershell.exe', [
+      '-WindowStyle', 'Hidden',
+      '-NonInteractive',
+      '-Command', ps
+    ], { detached: true, stdio: 'ignore' }).unref()
     app.quit()
   } else {
     try { fs.unlinkSync(tempPath) } catch {}
