@@ -171,6 +171,7 @@ export default function App() {
         onToggleTasks={() => setTaskSidebarOpen(o => !o)} tasksOpen={taskSidebarOpen}
         onExport={onExport} onImport={onImport}
         zoom={zoom} onZoomChange={onZoomChange}
+        onToast={showToast}
       />
       <div className="body-content">
         <TabSidebar

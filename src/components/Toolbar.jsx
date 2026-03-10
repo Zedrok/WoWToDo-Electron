@@ -3,7 +3,7 @@ import { useLang } from '../LangContext.jsx'
 
 const ZOOM_LEVELS = [0.75, 0.85, 1, 1.15, 1.25]
 
-export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport, onImport, zoom, onZoomChange }) {
+export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport, onImport, zoom, onZoomChange, onToast }) {
   const { t, lang, setLang } = useLang()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
@@ -14,9 +14,9 @@ export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport,
     try {
       const result = await window.api.checkForUpdates()
       if (!result.hasUpdate && !result.error) {
-        alert(t('upToDate'))
+        onToast(t('upToDate'))
       } else if (result.error) {
-        alert(t('updateCheckFailed'))
+        onToast(t('updateCheckFailed'))
       }
     } finally {
       setCheckingUpdate(false)
