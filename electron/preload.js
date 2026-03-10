@@ -25,4 +25,5 @@ contextBridge.exposeInMainWorld('api', {
   deleteTab:          (tabId)         => ipcRenderer.invoke('delete-tab', tabId),
   reorderTabs:        (ids)           => ipcRenderer.invoke('reorder-tabs', ids),
   checkForUpdates:    ()              => ipcRenderer.invoke('check-for-updates'),
+  getAppVersion:      ()              => ipcRenderer.invoke('get-app-version'),
 })

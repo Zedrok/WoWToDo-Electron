@@ -1,7 +1,7 @@
 {
   "name": "wowtodo-electron",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.5.0",
   "type": "module",
   "main": "electron/main.js",
   "scripts": {
@@ -39,8 +39,8 @@
   },
   "build": {
     "appId": "com.wowtodo.app",
-    "productName": "WoW ToDo List",
-    "buildVersion": "1.4",
+    "productName": "WoW ToDo",
+    "buildVersion": "1.5",
     "files": [
       "dist/**/*",
       "electron/**/*",
@@ -53,7 +53,7 @@
     "win": {
       "target": "portable",
       "icon": "public/icon.ico",
-      "artifactName": "${productName} 1.4.${ext}"
+      "artifactName": "${productName}.${ext}"
     },
     "extraResources": []
   }

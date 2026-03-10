@@ -408,6 +408,8 @@ function isNewer(latest, current) {
   return false
 }
 
+ipcMain.handle('get-app-version', () => app.getVersion())
+
 ipcMain.handle('check-for-updates', async () => {
   try {
     const release = await fetchLatestRelease()

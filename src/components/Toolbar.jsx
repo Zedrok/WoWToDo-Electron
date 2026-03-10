@@ -7,7 +7,12 @@ export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport,
   const { t, lang, setLang } = useLang()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
+  const [appVersion, setAppVersion] = useState('')
   const wrapRef = useRef()
+
+  useEffect(() => {
+    window.api.getAppVersion().then(v => setAppVersion(v))
+  }, [])
 
   const handleCheckUpdates = async () => {
     setCheckingUpdate(true)
@@ -63,6 +68,11 @@ export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport,
             <button className="settings-item" onClick={handleCheckUpdates} disabled={checkingUpdate}>
               {checkingUpdate ? t('checkingUpdate') : t('checkUpdateItem')}
             </button>
+            {appVersion && (
+              <div style={{ textAlign: 'center', fontSize: '10px', color: 'var(--fg3)', padding: '2px 12px 6px', opacity: 0.6 }}>
+                v{appVersion}
+              </div>
+            )}
             <div className="settings-sep" />
             <div className="settings-item settings-zoom">
               <span>{t('languageLabel')}</span>
