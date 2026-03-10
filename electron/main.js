@@ -5,8 +5,8 @@ const https = require('https')
 const { v4: uuidv4 } = require('uuid')
 
 // ─── GitHub repo for update checks ───────────────────────────────────────────
-const GITHUB_OWNER = 'zedrok'
-const GITHUB_REPO  = 'WowToDo'
+const GITHUB_OWNER = 'Zedrok'
+const GITHUB_REPO  = 'WoWToDo-Electron'
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 
