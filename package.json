@@ -1,0 +1,60 @@
+{
+  "name": "wowtodo-electron",
+  "private": true,
+  "version": "1.2.0",
+  "type": "module",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"wait-on http://localhost:5271 && cross-env NODE_ENV=development electron .\"",
+    "build": "vite build",
+    "electron:start": "cross-env NODE_ENV=development electron .",
+    "dist": "vite build && electron-builder",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "electron": "^40.8.0",
+    "electron-builder": "^26.8.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "png-to-ico": "^3.0.1",
+    "vite": "^8.0.0-beta.13",
+    "wait-on": "^9.0.4"
+  },
+  "overrides": {
+    "vite": "^8.0.0-beta.13"
+  },
+  "build": {
+    "appId": "com.wowtodo.app",
+    "productName": "WoW ToDo List",
+    "buildVersion": "1.2",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "public",
+      "output": "release"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "public/icon.ico",
+      "artifactName": "${productName} 1.2.${ext}"
+    },
+    "extraResources": []
+  }
+}

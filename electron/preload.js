@@ -1,0 +1,28 @@
+const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('api', {
+  getData:         ()              => ipcRenderer.invoke('get-data'),
+  getResets:       ()              => ipcRenderer.invoke('get-resets'),
+  checkResets:     ()              => ipcRenderer.invoke('check-resets'),
+  winMinimize:     ()              => ipcRenderer.invoke('win-minimize'),
+  winMaximize:     ()              => ipcRenderer.invoke('win-maximize'),
+  winClose:        ()              => ipcRenderer.invoke('win-close'),
+  setZoom:         (f)             => ipcRenderer.invoke('win-set-zoom', f),
+  addCharacter:    (name, classId)   => ipcRenderer.invoke('add-character', { name, classId }),
+  renameCharacter: (cid, name, hiddenTaskIds, classId) => ipcRenderer.invoke('rename-character', { cid, name, hiddenTaskIds, classId }),
+  deleteCharacter: (cid)           => ipcRenderer.invoke('delete-character', cid),
+  addTask:         (name, period, tabId, stateCount, professionId, customImage, trackProfit) => ipcRenderer.invoke('add-task', { name, periodicity: period, tab_id: tabId, state_count: stateCount, profession_id: professionId, custom_image: customImage, track_profit: trackProfit }),
+  editTask:        (tid, name, period, stateCount, professionId, customImage, trackProfit)   => ipcRenderer.invoke('edit-task', { tid, name, periodicity: period, state_count: stateCount, profession_id: professionId, custom_image: customImage, track_profit: trackProfit }),
+  deleteTask:      (tid)           => ipcRenderer.invoke('delete-task', tid),
+  toggleTask:      (cid, tid)      => ipcRenderer.invoke('toggle-task', { cid, tid }),
+  setProfit:       (cid, tid, date, amount) => ipcRenderer.invoke('set-profit', { cid, tid, date, amount }),
+  exportJson:         ()              => ipcRenderer.invoke('export-json'),
+  importJson:         ()              => ipcRenderer.invoke('import-json'),
+  reorderCharacters:  (ids)           => ipcRenderer.invoke('reorder-characters', ids),
+  reorderTasks:       (ids)           => ipcRenderer.invoke('reorder-tasks', ids),
+  addTab:             (data)          => ipcRenderer.invoke('add-tab', data),
+  editTab:            (data)          => ipcRenderer.invoke('edit-tab', data),
+  deleteTab:          (tabId)         => ipcRenderer.invoke('delete-tab', tabId),
+  reorderTabs:        (ids)           => ipcRenderer.invoke('reorder-tabs', ids),
+  checkForUpdates:    ()              => ipcRenderer.invoke('check-for-updates'),
+})
