@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const https = require('https')
+const os = require('os')
+const { spawn } = require('child_process')
 const { v4: uuidv4 } = require('uuid')
 
 // ─── GitHub repo for update checks ───────────────────────────────────────────
@@ -393,7 +395,6 @@ function fetchLatestRelease() {
 }
 
 function parseVersion(v) {
-  // Strips any non-numeric prefix (e.g. "WowToDov1.4" → "1.4", "v1.4" → "1.4")
   return (v || '').replace(/^[^\d]*/, '').split('.').map(Number)
 }
 
@@ -408,32 +409,104 @@ function isNewer(latest, current) {
   return false
 }
 
-ipcMain.handle('get-app-version', () => app.getVersion())
+function downloadFile(url, dest) {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(dest)
+    let settled = false
+    function done(err) {
+      if (settled) return; settled = true
+      if (err) { file.destroy(); try { fs.unlinkSync(dest) } catch {} reject(err) }
+      else resolve()
+    }
+    function request(currentUrl) {
+      const mod = currentUrl.startsWith('https') ? https : require('http')
+      mod.get(currentUrl, { headers: { 'User-Agent': 'WoWToDo-Electron' } }, (res) => {
+        if ([301, 302, 303, 307, 308].includes(res.statusCode)) {
+          res.resume()
+          request(res.headers.location)
+          return
+        }
+        if (res.statusCode !== 200) { res.resume(); return done(new Error(`HTTP ${res.statusCode}`)) }
+        const total = parseInt(res.headers['content-length'] || '0', 10)
+        let received = 0
+        res.on('data', chunk => {
+          received += chunk.length
+          if (total > 0) mainWindow?.webContents.send('update-progress', { status: 'downloading', percent: Math.round(received / total * 100) })
+        })
+        res.pipe(file)
+        file.on('finish', () => file.close(done))
+        file.on('error', done)
+      }).on('error', done)
+    }
+    request(url)
+  })
+}
 
-ipcMain.handle('check-for-updates', async () => {
+async function downloadAndReplace(url) {
+  const exePath = process.env.PORTABLE_EXECUTABLE_FILE || app.getPath('exe')
+  const exeDir  = path.dirname(exePath)
+  const exeName = path.basename(exePath)
+  const tempPath = path.join(exeDir, exeName + '.new')
+
+  mainWindow?.webContents.send('update-progress', { status: 'downloading', percent: 0 })
+  await downloadFile(url, tempPath)
+  mainWindow?.webContents.send('update-progress', { status: 'ready' })
+
+  const { response } = await dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    title: 'Actualización lista',
+    message: 'La actualización se ha descargado.',
+    detail: 'La aplicación se reiniciará para aplicar la actualización.',
+    buttons: ['Reiniciar ahora', 'Más tarde'],
+    defaultId: 0
+  })
+
+  if (response === 0) {
+    const batPath = path.join(os.tmpdir(), 'wowtodo_update.bat')
+    const bat = [
+      '@echo off',
+      'timeout /t 2 /nobreak > nul',
+      `move /y "${tempPath}" "${exePath}"`,
+      `start "" "${exePath}"`,
+      'del "%~f0"'
+    ].join('\r\n')
+    fs.writeFileSync(batPath, bat, 'ascii')
+    spawn('cmd.exe', ['/c', batPath], { detached: true, stdio: 'ignore' }).unref()
+    app.quit()
+  } else {
+    try { fs.unlinkSync(tempPath) } catch {}
+  }
+}
+
+async function checkAndShowUpdate(silent = false) {
   try {
-    const release = await fetchLatestRelease()
+    const release   = await fetchLatestRelease()
     const latestTag = release.tag_name || ''
     const current   = app.getVersion()
     if (isNewer(latestTag, current)) {
-      const asset   = (release.assets || []).find(a => a.name.endsWith('.exe'))
-      const url     = asset?.browser_download_url || release.html_url
+      const asset = (release.assets || []).find(a => a.name.endsWith('.exe'))
       const { response } = await dialog.showMessageBox(mainWindow, {
         type: 'info',
         title: 'Nueva versión disponible',
         message: `Versión ${latestTag} disponible`,
-        detail: `Tienes la versión ${current}. ¿Quieres descargar la nueva versión?`,
-        buttons: ['Descargar', 'Ahora no'],
+        detail: `Tienes la versión ${current}. ¿Quieres descargar e instalar la actualización ahora?`,
+        buttons: ['Descargar e instalar', 'Ahora no'],
         defaultId: 0
       })
-      if (response === 0) shell.openExternal(url)
+      if (response === 0) {
+        if (asset) await downloadAndReplace(asset.browser_download_url)
+        else shell.openExternal(release.html_url)
+      }
       return { hasUpdate: true, latest: latestTag, current }
     }
     return { hasUpdate: false, latest: latestTag, current }
   } catch (e) {
     return { hasUpdate: false, error: e.message }
   }
-})
+}
+
+ipcMain.handle('get-app-version', () => app.getVersion())
+ipcMain.handle('check-for-updates', () => checkAndShowUpdate(false))
 
 // ─── Window Controls ────────────────────────────────────────────────────────
 ipcMain.handle('win-minimize', () => { mainWindow?.minimize() })
@@ -511,7 +584,12 @@ function createWindow() {
   }
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  mainWindow.webContents.once('did-finish-load', () => {
+    setTimeout(() => checkAndShowUpdate(true), 3000)
+  })
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()

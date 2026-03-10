@@ -52,6 +52,13 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToast(null), 2200)
   }, [])
 
+  useEffect(() => {
+    window.api.onUpdateProgress(({ status, percent }) => {
+      if (status === 'downloading') showToast(`Descargando actualización... ${percent}%`)
+      else if (status === 'ready')  showToast('✓ Actualización descargada — reiniciando...')
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const closeModal = () => setModal(null)
 
   // Characters

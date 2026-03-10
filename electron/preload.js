@@ -26,4 +26,5 @@ contextBridge.exposeInMainWorld('api', {
   reorderTabs:        (ids)           => ipcRenderer.invoke('reorder-tabs', ids),
   checkForUpdates:    ()              => ipcRenderer.invoke('check-for-updates'),
   getAppVersion:      ()              => ipcRenderer.invoke('get-app-version'),
+  onUpdateProgress:   (cb)            => ipcRenderer.on('update-progress', (_, data) => cb(data)),
 })
