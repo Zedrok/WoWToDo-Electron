@@ -393,7 +393,8 @@ function fetchLatestRelease() {
 }
 
 function parseVersion(v) {
-  return (v || '').replace(/^v/, '').split('.').map(Number)
+  // Strips any non-numeric prefix (e.g. "WowToDov1.4" → "1.4", "v1.4" → "1.4")
+  return (v || '').replace(/^[^\d]*/, '').split('.').map(Number)
 }
 
 function isNewer(latest, current) {
