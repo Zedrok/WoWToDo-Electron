@@ -1,16 +1,124 @@
-# React + Vite
+# WoW ToDo List
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación de escritorio para rastrear tareas diarias y semanales de World of Warcraft por personaje. Construida con **Electron + React + Vite**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Requisitos
 
-## React Compiler
+- [Node.js](https://nodejs.org/) v18 o superior
+- npm (incluido con Node.js)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Instalación
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+```
+
+---
+
+## Desarrollo
+
+Lanza la app en modo desarrollo con hot-reload:
+
+```bash
+npm run dev
+```
+
+Esto inicia Vite en `http://localhost:5271` y Electron apuntando a esa URL. Los DevTools se abren automáticamente.
+
+---
+
+## Build — Portable (.exe)
+
+Genera el ejecutable portable para Windows:
+
+```bash
+npm run dist
+```
+
+El archivo resultante se guarda en:
+
+```
+release/WoW ToDo List <versión>.exe
+```
+
+### Cambiar versión antes de buildear
+
+1. Abre `package.json`
+2. Edita el campo `"version"` (debe ser semver válido, ej. `1.3.0`)
+3. Edita `"buildVersion"` dentro del bloque `"build"` con la versión que quieres que aparezca en el nombre del archivo (ej. `"1.3"`)
+4. Edita `"artifactName"` dentro de `"win"` con el mismo número (ej. `"${productName} 1.3.${ext}"`)
+5. Ejecuta `npm run dist`
+
+---
+
+## Estructura del proyecto
+
+```
+electron/
+  main.js       # Proceso principal: lógica de datos, IPC, ventana
+  preload.js    # Puente seguro entre Electron y React (contextBridge)
+  package.json  # Solo { "type": "commonjs" }
+
+src/
+  App.jsx              # Raíz de React, estado global, llamadas IPC
+  LangContext.jsx      # Sistema de i18n (es / en)
+  index.css            # Estilos globales y componentes
+  components/
+    Dashboard.jsx      # Tabla principal de personajes × tareas
+    Toolbar.jsx        # Barra de herramientas y menú de ajustes
+    TabSidebar.jsx     # Panel lateral de pestañas
+    TaskSidebar.jsx    # Panel lateral de tareas
+    Titlebar.jsx       # Barra de título personalizada con contadores de reset
+    modals/
+      CharacterModal.jsx
+      TaskModal.jsx
+      TabModal.jsx
+      ConfirmModal.jsx
+
+public/
+  icon.ico      # Icono de la app (Windows)
+  icon.png      # Icono PNG
+
+package.json    # Config principal: scripts, dependencias, electron-builder
+vite.config.js  # Config de Vite
+```
+
+---
+
+## Datos de usuario
+
+El archivo de datos (`wow_todo_data.json`) se guarda:
+
+- **Desarrollo**: en la raíz del proyecto
+- **Portable (producción)**: junto al `.exe` (en la misma carpeta donde se ejecuta)
+
+> El archivo **no se incluye en el repositorio** (está en `.gitignore`).
+
+---
+
+## Publicar una nueva versión
+
+1. Actualiza la versión en `package.json` (ver sección anterior)
+2. Ejecuta `npm run dist` para generar el `.exe`
+3. Haz commit y push de los cambios
+4. En GitHub, ve a **Releases → Create a new release**
+5. Crea un tag con el formato `v1.X` (ej. `v1.3`)
+6. Sube el `.exe` generado como asset del release
+7. Publica el release
+
+Los usuarios verán la nueva versión al usar **Ajustes → Buscar actualizaciones** dentro de la app.
+
+---
+
+## Scripts disponibles
+
+| Comando | Descripción |
+|---|---|
+| `npm run dev` | Inicia en modo desarrollo (Vite + Electron) |
+| `npm run build` | Solo compila el frontend con Vite |
+| `npm run dist` | Compila frontend + empaqueta portable con electron-builder |
+| `npm run lint` | Ejecuta ESLint |
