@@ -451,11 +451,28 @@ function downloadFile(url, dest) {
   })
 }
 
+function launchUpdater(tempPath, exePath) {
+  // Use cmd.exe with windowsHide:true — no console window, fully detached
+  const cmd = `timeout /t 2 /nobreak > nul & move /y "${tempPath}" "${exePath}" & start "" "${exePath}"`
+  spawn('cmd.exe', ['/c', cmd], {
+    detached: true,
+    stdio: 'ignore',
+    windowsHide: true
+  }).unref()
+}
+
+function applyPendingUpdate() {
+  if (isDev) return false
+  const exePath  = process.env.PORTABLE_EXECUTABLE_FILE || app.getPath('exe')
+  const tempPath = exePath + '.new'
+  if (!fs.existsSync(tempPath)) return false
+  launchUpdater(tempPath, exePath)
+  return true
+}
+
 async function downloadAndReplace(url) {
-  const exePath = process.env.PORTABLE_EXECUTABLE_FILE || app.getPath('exe')
-  const exeDir  = path.dirname(exePath)
-  const exeName = path.basename(exePath)
-  const tempPath = path.join(exeDir, exeName + '.new')
+  const exePath  = process.env.PORTABLE_EXECUTABLE_FILE || app.getPath('exe')
+  const tempPath = exePath + '.new'
 
   mainWindow?.webContents.send('update-progress', { status: 'downloading', percent: 0 })
   await downloadFile(url, tempPath)
@@ -471,20 +488,10 @@ async function downloadAndReplace(url) {
   })
 
   if (response === 0) {
-    const ps = [
-      `Start-Sleep -Milliseconds 1500`,
-      `Move-Item -Force '${tempPath.replace(/'/g, "''")}' '${exePath.replace(/'/g, "''")}'`,
-      `Start-Process '${exePath.replace(/'/g, "''")}'`
-    ].join('; ')
-    spawn('powershell.exe', [
-      '-WindowStyle', 'Hidden',
-      '-NonInteractive',
-      '-Command', ps
-    ], { detached: true, stdio: 'ignore' }).unref()
+    launchUpdater(tempPath, exePath)
     app.quit()
-  } else {
-    try { fs.unlinkSync(tempPath) } catch {}
   }
+  // "Más tarde": el archivo .new se conserva y se aplica al próximo inicio
 }
 
 async function checkAndShowUpdate(silent = false) {
@@ -594,6 +601,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  if (applyPendingUpdate()) { app.quit(); return }
   createWindow()
   mainWindow.webContents.once('did-finish-load', () => {
     setTimeout(() => checkAndShowUpdate(true), 3000)
