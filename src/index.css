@@ -275,7 +275,7 @@ input:focus { border-color: var(--gold3); }
   text-align: center; line-height: 1.4; letter-spacing: 0.3px;
   transition: background 0.15s, opacity 0.15s;
 }
-.profit-tag.daily.has-profit  { color: var(--green2); }
+.profit-tag.daily.has-profit  { color: var(--fg); }
 .profit-tag.weekly.has-profit { color: var(--gold2); }
 .profit-tag.no-profit { color: var(--fg3); opacity: 0.25; }
 .profit-tag:not(.no-click):hover { opacity: 1 !important; background: rgba(255,255,255,0.07); }
