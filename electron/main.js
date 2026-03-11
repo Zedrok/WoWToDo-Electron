@@ -23,7 +23,7 @@ const DATA_FILE = isDev
 
 // ─── DataManager ─────────────────────────────────────────────────────────────
 
-const DAILY_RESET_HOUR = 15
+const DAILY_RESET_HOUR = 14
 const WEEKLY_RESET_WEEKDAY = 2 // Tuesday (0=Mon in JS Date... we use UTC day)
 
 function emptyData() {

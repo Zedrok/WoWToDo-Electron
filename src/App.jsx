@@ -8,7 +8,9 @@ import CharacterModal from './components/modals/CharacterModal.jsx'
 import TaskModal from './components/modals/TaskModal.jsx'
 import TabModal from './components/modals/TabModal.jsx'
 import ConfirmModal from './components/modals/ConfirmModal.jsx'
+import ChangelogModal from './components/modals/ChangelogModal.jsx'
 import { useLang } from './LangContext.jsx'
+import { CHANGELOG, getChangesSince } from './changelog.js'
 
 const api = window.api
 
@@ -20,6 +22,7 @@ export default function App() {
   const [taskSidebarOpen, setTaskSidebarOpen] = useState(false)
   const [modal, setModal]           = useState(null)
   const [toast, setToast]           = useState(null)
+  const [changelogModal, setChangelogModal] = useState(null)  // null | { changes, version }
   const [zoom, setZoom]             = useState(() => {
     const stored = parseFloat(localStorage.getItem('wt_zoom') || '1')
     const levels = [0.75, 0.85, 1, 1.15, 1.25]
@@ -34,6 +37,20 @@ export default function App() {
     api.getData().then(d => {
       setData(d)
       if (d.tabs?.length) setActiveTabId(d.tabs[0].id)
+    })
+  }, [])
+
+  // Check for version changes and show changelog
+  useEffect(() => {
+    api.getAppVersion().then(version => {
+      const lastSeenVersion = localStorage.getItem('wt_lastSeenVersion')
+      if (lastSeenVersion !== version && CHANGELOG.length > 0) {
+        const changes = getChangesSince(lastSeenVersion)
+        setChangelogModal({ changes, version })
+        localStorage.setItem('wt_lastSeenVersion', version)
+      } else if (!lastSeenVersion) {
+        localStorage.setItem('wt_lastSeenVersion', version)
+      }
     })
   }, [])
 
@@ -214,6 +231,8 @@ export default function App() {
       {modal?.type === 'addTab'   && <TabModal title={t('newTabTitle')} onSubmit={onModalSubmit} onClose={closeModal} />}
       {modal?.type === 'editTab'  && <TabModal title={t('editTabTitle')} initial={modal.tab} onSubmit={onModalSubmit} onClose={closeModal} />}
       {modal?.type === 'confirm'  && <ConfirmModal title={modal.title} message={modal.message} variant={modal.variant} onConfirm={modal.onConfirm} onClose={closeModal} />}
+
+      {changelogModal && <ChangelogModal changes={changelogModal.changes} currentVersion={changelogModal.version} onClose={() => setChangelogModal(null)} />}
 
       {toast && <div className="toast">{toast}</div>}
     </div>
