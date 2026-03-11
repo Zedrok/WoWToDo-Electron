@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Titlebar from './components/Titlebar.jsx'
 import Toolbar from './components/Toolbar.jsx'
 import Dashboard from './components/Dashboard.jsx'
-import TaskSidebar from './components/TaskSidebar.jsx'
+import TaskPanel from './components/TaskPanel.jsx'
 import TabSidebar from './components/TabSidebar.jsx'
 import CharacterModal from './components/modals/CharacterModal.jsx'
 import TaskModal from './components/modals/TaskModal.jsx'
@@ -17,7 +17,6 @@ export default function App() {
   const [data, setData]             = useState(null)
   const [activeTabId, setActiveTabId] = useState(null)
   const [selected, setSelected]     = useState(null)      // { cid, tid }
-  const [selectedTask, setSelectedTask] = useState(null)  // tid from sidebar
   const [taskSidebarOpen, setTaskSidebarOpen] = useState(false)
   const [modal, setModal]           = useState(null)
   const [toast, setToast]           = useState(null)
@@ -86,13 +85,13 @@ export default function App() {
   // Tasks
   const openAddTask    = ()    => setModal({ type: 'addTask', tabId: activeTabId })
   const openEditTask   = (tid) => {
-    const t2 = tid || selected?.tid || selectedTask
+    const t2 = tid || selected?.tid
     if (!t2) return showToast(t('selectTaskFirst'))
     const task = data.tasks.find(x => x.id === t2)
     if (task) setModal({ type: 'editTask', task })
   }
   const confirmDeleteTask = (tid) => {
-    const t2 = tid || selected?.tid || selectedTask
+    const t2 = tid || selected?.tid
     if (!t2) return showToast(t('selectTaskFirst'))
     const task = data.tasks.find(x => x.id === t2)
     if (!task) return
@@ -134,6 +133,17 @@ export default function App() {
   const onReorderChars = useCallback(async (ids) => { const d = await api.reorderCharacters(ids); setData(d) }, [])
   const onReorderTasks  = useCallback(async (ids) => { const d = await api.reorderTasks(ids);       setData(d) }, [])
   const onReorderTabs   = useCallback(async (ids) => { const d = await api.reorderTabs(ids);        setData(d) }, [])
+
+  const onPanelAddTask = useCallback(async (result) => {
+    const d = await api.addTask(result.name, result.period, activeTabId, result.stateCount, result.professionId, result.customImage, result.trackProfit, result.profitDisplay)
+    setData(d)
+    showToast(t('taskAdded', { name: result.name }))
+  }, [activeTabId, t])
+
+  const onPanelEditTask = useCallback(async (taskId, result) => {
+    const d = await api.editTask(taskId, result.name, result.period, result.stateCount, result.professionId, result.customImage, result.trackProfit, result.profitDisplay)
+    setData(d)
+  }, [])
 
   // Tabs
   const openAddTab  = ()    => setModal({ type: 'addTab' })
@@ -192,12 +202,10 @@ export default function App() {
         />
         <div className="main-content">
           <Dashboard data={tabData} selected={selected} onSelect={setSelected} onToggle={onToggle} onReorderChars={onReorderChars} onReorderTasks={onReorderTasks} onEditChar={openEditChar} onSetProfit={onSetProfit} onEditTask={openEditTask} />
-          {taskSidebarOpen && (
-            <TaskSidebar tasks={tabTasks} selectedTaskId={selectedTask} onSelectTask={setSelectedTask}
-              onAdd={openAddTask} onEdit={openEditTask} onDelete={confirmDeleteTask} onReorder={onReorderTasks} />
-          )}
         </div>
       </div>
+
+      {taskSidebarOpen && <TaskPanel tasks={tabTasks} onClose={() => setTaskSidebarOpen(false)} onAdd={onPanelAddTask} onEdit={onPanelEditTask} onDelete={confirmDeleteTask} onReorder={onReorderTasks} />}
 
       {modal?.type === 'addChar'  && <CharacterModal title={t('newCharTitle')} onSubmit={onModalSubmit} onClose={closeModal} />}
       {modal?.type === 'editChar' && <CharacterModal title={t('editCharTitle')} initial={modal.char.name} initialClassId={modal.char.class_id || null} hiddenTaskIds={modal.char.hidden_task_ids || []} tasks={modal.tasks || []} tabs={data.tabs} onSubmit={onModalSubmit} onClose={closeModal} onDelete={() => { const char = modal.char; setModal({ type: 'confirm', title: t('deleteCharTitle'), message: t('deleteCharMsg', { name: char.name }), variant: 'danger', onConfirm: async () => { const d = await api.deleteCharacter(char.id); setData(d); setSelected(null); closeModal(); showToast(t('charDeleted', { name: char.name })) } }) }} />}
