@@ -13,6 +13,7 @@ dist-ssr
 *.local
 release
 wow_todo_data.json
+_wt_update.vbs
 
 # Editor directories and files
 .vscode/*

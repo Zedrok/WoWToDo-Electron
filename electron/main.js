@@ -452,12 +452,21 @@ function downloadFile(url, dest) {
 }
 
 function launchUpdater(tempPath, exePath) {
-  // Use cmd.exe with windowsHide:true — no console window, fully detached
-  const cmd = `timeout /t 2 /nobreak > nul & move /y "${tempPath}" "${exePath}" & start "" "${exePath}"`
-  spawn('cmd.exe', ['/c', cmd], {
+  // wscript.exe is a GUI app — zero console window, even when detached.
+  // //B = batch mode (no dialogs/errors), //NoLogo = no banner.
+  const vbsPath = path.join(path.dirname(exePath), '_wt_update.vbs')
+  const vbs = [
+    'WScript.Sleep 2500',
+    'Set fso = CreateObject("Scripting.FileSystemObject")',
+    `fso.CopyFile "${tempPath}", "${exePath}", True`,
+    `fso.DeleteFile "${tempPath}"`,
+    `CreateObject("WScript.Shell").Run Chr(34) & "${exePath}" & Chr(34), 1, False`,
+    `fso.DeleteFile "${vbsPath}"`
+  ].join('\r\n')
+  fs.writeFileSync(vbsPath, vbs, 'utf8')
+  spawn('wscript.exe', ['//B', '//NoLogo', vbsPath], {
     detached: true,
-    stdio: 'ignore',
-    windowsHide: true
+    stdio: 'ignore'
   }).unref()
 }
 
