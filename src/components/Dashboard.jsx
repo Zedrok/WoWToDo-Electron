@@ -16,17 +16,17 @@ export default function Dashboard({ data, selected, onSelect, onToggle, onReorde
   const [profitEdit, setProfitEdit] = useState(null)   // { cid, tid }
   const [profitDraft, setProfitDraft] = useState('')
 
-  // "today" = key for the current daily-reset period (resets at 15:00 UTC, not calendar midnight)
+  // "today" = key for the current daily-reset period (resets at 14:00 UTC)
   const today = useMemo(() => {
     const now = new Date()
-    const candidate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 15, 0, 0))
+    const candidate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 14, 0, 0))
     const lastReset = now >= candidate ? candidate : new Date(candidate.getTime() - 86400000)
     return lastReset.toISOString().slice(0, 10)
   }, [])
   const weekStart = useMemo(() => {
     const now = new Date()
     const daysBack = (now.getUTCDay() - 2 + 7) % 7  // Tuesday
-    const candidate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysBack, 15, 0, 0))
+    const candidate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysBack, 14, 0, 0))
     const result = now < candidate ? new Date(candidate.getTime() - 7 * 86400000) : candidate
     return result.toISOString().slice(0, 10)
   }, [])
