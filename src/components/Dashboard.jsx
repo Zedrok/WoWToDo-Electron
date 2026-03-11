@@ -214,6 +214,9 @@ export default function Dashboard({ data, selected, onSelect, onToggle, onReorde
                     const stateClass = isDisabled ? 'disabled' : isComplete ? 'checked' : (states === 3 && status === 1) ? 'in-progress' : 'unchecked'
                     const stateIcon  = isDisabled ? '—' : isComplete ? '☑' : (states === 3 && status === 1) ? '⬤' : '☐'
                     const trackProfit  = task.track_profit === true
+                    const displayMode  = (trackProfit && period === 'daily') ? (task.profit_display || 'both') : 'weekly'
+                    const showDailyTag  = displayMode === 'daily'  || displayMode === 'both'
+                    const showWeeklyTag = displayMode === 'weekly' || displayMode === 'both'
                     const isEditing    = profitEdit?.cid === char.id && profitEdit?.tid === task.id
                     const profitKey    = period === 'daily' ? today : weekStart
                     const todayProfit  = isDisabled ? 0 : Number(compl.profit_log?.[today] || 0)
@@ -275,15 +278,22 @@ export default function Dashboard({ data, selected, onSelect, onToggle, onReorde
                               />
                             ) : period === 'daily' ? (
                               <div className="profit-daily-wrap" title={t('profitTooltip')}>
-                                <span
-                                  className={`profit-tag daily${hasToday ? ' has-profit' : ' no-profit'}`}
-                                  onClick={handleProfitClick}
-                                >
-                                  {hasToday ? '+' + formatProfit(todayProfit) : '·'}
-                                </span>
-                                <span className={`profit-tag weekly${hasWeekly ? ' has-profit' : ' no-profit'} no-click`}>
-                                  {hasWeekly ? formatProfit(weeklyProfit) : '·'}
-                                </span>
+                                {showDailyTag && (
+                                  <span
+                                    className={`profit-tag daily${hasToday ? ' has-profit' : ' no-profit'}`}
+                                    onClick={handleProfitClick}
+                                  >
+                                    {hasToday ? '+' + formatProfit(todayProfit) : '·'}
+                                  </span>
+                                )}
+                                {showWeeklyTag && (
+                                  <span
+                                    className={`profit-tag weekly${hasWeekly ? ' has-profit' : ' no-profit'}${showDailyTag ? ' no-click' : ''}`}
+                                    onClick={!showDailyTag ? handleProfitClick : undefined}
+                                  >
+                                    {hasWeekly ? formatProfit(weeklyProfit) : '·'}
+                                  </span>
+                                )}
                               </div>
                             ) : (
                               <span

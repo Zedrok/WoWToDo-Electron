@@ -68,6 +68,10 @@ const TR = {
     totalColumn: 'Total',
     profitLabel: 'PROFIT',
     profitToggleDesc: 'Registrar ganancias en oro para esta tarea',
+    profitDisplayLabel: 'Mostrar en celdas',
+    profitDisplayDaily: 'Solo monto diario',
+    profitDisplayWeekly: 'Solo monto semanal',
+    profitDisplayBoth: 'Ambos montos',
 
     // TabModal
     tabNameLabel: 'NOMBRE DE LA PESTAÑA',
@@ -186,6 +190,10 @@ const TR = {
     totalColumn: 'Total',
     profitLabel: 'PROFIT',
     profitToggleDesc: 'Track gold earnings for this task',
+    profitDisplayLabel: 'Show in cells',
+    profitDisplayDaily: 'Daily amount only',
+    profitDisplayWeekly: 'Weekly amount only',
+    profitDisplayBoth: 'Both amounts',
 
     // TabModal
     tabNameLabel: 'TAB NAME',

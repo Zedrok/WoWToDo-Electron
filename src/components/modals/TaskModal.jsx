@@ -9,7 +9,8 @@ export default function TaskModal({ title, initial = null, onSubmit, onClose }) 
   const [stateCount,   setStateCount]   = useState(initial?.state_count ?? 3)
   const [professionId, setProfessionId] = useState(initial?.profession_id || null)
   const [customImage,  setCustomImage]  = useState(initial?.custom_image  || null)
-  const [trackProfit,  setTrackProfit]  = useState(initial?.track_profit  || false)
+  const [trackProfit,   setTrackProfit]  = useState(initial?.track_profit   || false)
+  const [profitDisplay, setProfitDisplay] = useState(initial?.profit_display || 'both')
   const inputRef  = useRef()
   const imageRef  = useRef()
 
@@ -27,7 +28,7 @@ export default function TaskModal({ title, initial = null, onSubmit, onClose }) 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!name.trim()) return
-    onSubmit({ name: name.trim(), period, stateCount, professionId, customImage, trackProfit })
+    onSubmit({ name: name.trim(), period, stateCount, professionId, customImage, trackProfit, profitDisplay })
   }
 
   return (
@@ -113,6 +114,27 @@ export default function TaskModal({ title, initial = null, onSubmit, onClose }) 
                   {t('profitToggleDesc')}
                 </span>
               </label>
+              {trackProfit && period === 'daily' && (
+                <div style={{ marginTop: 10, padding: '8px 10px', background: 'rgba(197, 153, 83, 0.08)', borderRadius: 4, border: '1px solid rgba(197, 153, 83, 0.2)' }}>
+                  <label style={{ fontSize: 11, color: 'var(--fg3)', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('profitDisplayLabel')}</label>
+                  <div className="radio-group" style={{ flexDirection: 'column', gap: 4 }}>
+                    {[['daily', 'profitDisplayDaily'], ['weekly', 'profitDisplayWeekly'], ['both', 'profitDisplayBoth']].map(([val, key]) => (
+                      <label key={val} className="radio-option" style={{ fontSize: 12 }}>
+                        <input
+                          type="radio"
+                          name="profitDisplay"
+                          value={val}
+                          checked={profitDisplay === val}
+                          onChange={() => setProfitDisplay(val)}
+                        />
+                        <span style={{ color: profitDisplay === val ? 'var(--gold)' : 'var(--fg2)' }}>
+                          {t(key)}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="form-group">
               <label className="form-label">{t('professionLabel')} <span style={{ color: 'var(--fg3)', fontWeight: 400 }}>{t('optional')}</span></label>

@@ -123,8 +123,8 @@ export default function App() {
     switch (modal.type) {
       case 'addChar':  { const d = await api.addCharacter(result.name, result.classId);                       setData(d); showToast(t('charAdded', { name: result.name }));        break }
       case 'editChar': { const d = await api.renameCharacter(modal.char.id, result.name, result.hiddenTaskIds, result.classId); setData(d); break }
-      case 'addTask':  { const d = await api.addTask(result.name, result.period, modal.tabId, result.stateCount, result.professionId, result.customImage, result.trackProfit); setData(d); showToast(t('taskAdded', { name: result.name }));   break }
-      case 'editTask': { const d = await api.editTask(modal.task.id, result.name, result.period, result.stateCount, result.professionId, result.customImage, result.trackProfit); setData(d);                                      break }
+      case 'addTask':  { const d = await api.addTask(result.name, result.period, modal.tabId, result.stateCount, result.professionId, result.customImage, result.trackProfit, result.profitDisplay); setData(d); showToast(t('taskAdded', { name: result.name }));   break }
+      case 'editTask': { const d = await api.editTask(modal.task.id, result.name, result.period, result.stateCount, result.professionId, result.customImage, result.trackProfit, result.profitDisplay); setData(d);                                      break }
       case 'addTab':   { const d = await api.addTab(result);    setData(d); setActiveTabId(d.tabs[d.tabs.length - 1].id); showToast(t('tabAdded', { name: result.name })); break }
       case 'editTab':  { const d = await api.editTab({ tabId: modal.tab.id, ...result });       setData(d); break }
     }

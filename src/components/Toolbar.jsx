@@ -65,10 +65,6 @@ export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport,
               </select>
             </div>
             <div className="settings-sep" />
-            <button className="settings-item" onClick={handleCheckUpdates} disabled={checkingUpdate}>
-              {checkingUpdate ? t('checkingUpdate') : t('checkUpdateItem')}
-            </button>
-            <div className="settings-sep" />
             <div className="settings-item settings-zoom">
               <span>{t('languageLabel')}</span>
               <select
@@ -80,6 +76,10 @@ export default function Toolbar({ onAddChar, onToggleTasks, tasksOpen, onExport,
                 <option value="en">English</option>
               </select>
             </div>
+            <div className="settings-sep" />
+            <button className="settings-item" onClick={handleCheckUpdates} disabled={checkingUpdate}>
+              {checkingUpdate ? t('checkingUpdate') : t('checkUpdateItem')}
+            </button>
             {appVersion && (
               <>
                 <div className="settings-sep" />

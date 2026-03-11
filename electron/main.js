@@ -129,6 +129,13 @@ function migrate(data) {
     if (task.track_profit === undefined) task.track_profit = false
   }
 
+  // Migrate: ensure profit_display exists on daily tasks with track_profit
+  for (const task of data.tasks) {
+    if (task.track_profit && task.periodicity === 'daily' && task.profit_display === undefined) {
+      task.profit_display = 'both'
+    }
+  }
+
   // Migrate: ensure profit_log exists in all completion entries
   for (const task of data.tasks) {
     for (const cid of Object.keys(task.completion || {})) {
@@ -257,8 +264,9 @@ ipcMain.handle('delete-character', (_, cid) => {
   return appData
 })
 
-ipcMain.handle('add-task', (_, { name, periodicity, tab_id, state_count, profession_id, custom_image, track_profit }) => {
-  const task = { id: uuidv4(), name: name.trim(), periodicity: periodicity.toLowerCase(), tab_id: tab_id || appData.tabs[0]?.id, state_count: state_count || 3, profession_id: profession_id || null, custom_image: custom_image || null, track_profit: track_profit === true, completion: {} }
+ipcMain.handle('add-task', (_, { name, periodicity, tab_id, state_count, profession_id, custom_image, track_profit, profit_display }) => {
+  const period = periodicity.toLowerCase()
+  const task = { id: uuidv4(), name: name.trim(), periodicity: period, tab_id: tab_id || appData.tabs[0]?.id, state_count: state_count || 3, profession_id: profession_id || null, custom_image: custom_image || null, track_profit: track_profit === true, profit_display: (track_profit && period === 'daily') ? (profit_display || 'both') : undefined, completion: {} }
   for (const char of appData.characters) {
     task.completion[char.id] = { status: 0, last_completed: null, history: [], profit_log: {} }
   }
@@ -267,7 +275,7 @@ ipcMain.handle('add-task', (_, { name, periodicity, tab_id, state_count, profess
   return appData
 })
 
-ipcMain.handle('edit-task', (_, { tid, name, periodicity, state_count, profession_id, custom_image, track_profit }) => {
+ipcMain.handle('edit-task', (_, { tid, name, periodicity, state_count, profession_id, custom_image, track_profit, profit_display }) => {
   const task = appData.tasks.find(t => t.id === tid)
   if (task) {
     task.name = name.trim()
@@ -277,6 +285,7 @@ ipcMain.handle('edit-task', (_, { tid, name, periodicity, state_count, professio
     task.profession_id = profession_id || null
     task.custom_image = custom_image !== undefined ? (custom_image || null) : task.custom_image
     task.track_profit = track_profit === true
+    task.profit_display = (track_profit && task.periodicity === 'daily') ? (profit_display || 'both') : undefined
     saveData(appData)
   }
   return appData
