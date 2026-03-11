@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    version: '1.6.9',
+    date: '2026-03-11',
+    changes: [
+      'Fix: sincronización hora reset UTC 14:00 en cálculo de profit diario/semanal'
+    ]
+  },
+  {
     version: '1.6.8',
     date: '2026-03-11',
     changes: [
