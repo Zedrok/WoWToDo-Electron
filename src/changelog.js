@@ -5,6 +5,13 @@
 
 export const CHANGELOG = [
   {
+    version: '1.6.10',
+    date: '2026-03-12',
+    changes: [
+      'Fix: monto diario no se limpiaba al llegar el reset por timer (sin reiniciar la app)'
+    ]
+  },
+  {
     version: '1.6.9',
     date: '2026-03-11',
     changes: [
